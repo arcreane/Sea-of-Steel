@@ -1,0 +1,91 @@
+# Fichiers et dossiers générés automatiquement
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.vcxproj.user
+*.dbmdl
+*.pdb
+*.cache
+*.log
+
+# Fichiers macOS/Linux/Windows inutiles
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.swp
+*.tmp
+*.bak
+
+# Fichiers Visual Studio
+.vs/
+*.csproj.user
+*.pidb
+
+# Fichiers JetBrains Rider
+.idea/
+*.sln.iml
+
+# Dossiers de build
+**/bin/
+**/obj/
+
+# Android
+*.apk
+*.ap_
+*.dex
+*.class
+*.apk.meta
+android/bin/
+android/obj/
+android/app/build/
+
+# iOS
+build/
+*.ipa
+*.xcuserstate
+*.xcworkspace
+*.xcodeproj
+*.pbxuser
+*.mode1v3
+*.mode2v3
+
+# MAUI
+Platforms/Android/obj/
+Platforms/Android/bin/
+Platforms/iOS/obj/
+Platforms/iOS/bin/
+
+# Secrets et configs perso
+secrets.json
+*.env
+
+# Fichiers de débogage
+*.log
+*.tlog
+
+# Dossiers facultatifs
+TestResults/
+packages/
+AppPackages/
+.publish/
+
+# Node/npm si utilisé pour UI
+node_modules/
+
+# Exclusions pour GitHub
+!.gitignore
+!*.md
+!*.cs
+!*.xaml
+!*.json
+!*.yml
+!*.xml
+!*.png
+!*.jpg
+!*.svg
+!*.ico
+!*.ttf
+!*.otf
+!Resources/
