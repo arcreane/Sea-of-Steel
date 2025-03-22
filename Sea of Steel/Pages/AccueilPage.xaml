@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SeaOfSteel.Pages.AccueilPage"
+             BackgroundImageSource="ocean_background.jpg"
+             Title="Sea of Steel">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center" HorizontalOptions="Center">
+
+            <Image Source="anchor_logo.png"
+                   WidthRequest="120"
+                   HeightRequest="120"
+                   HorizontalOptions="Center" />
+
+            <Label Text="Sea of Steel"
+                   FontSize="40"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center" />
+
+            <Label Text="⚓ Préparez-vous au combat naval !"
+                   FontSize="18"
+                   TextColor="White"
+                   HorizontalOptions="Center" />
+
+            <Button Text="Rejoindre une partie"
+                    FontSize="18"
+                    CornerRadius="12"
+                    BackgroundColor="#1e3f66"
+                    TextColor="White"
+                    Clicked="OnJoinClicked" />
+
+            <Button Text="Créer une partie"
+                    FontSize="18"
+                    CornerRadius="12"
+                    BackgroundColor="#356d9b"
+                    TextColor="White"
+                    Clicked="OnCreateClicked" />
+
+            <Button Text="Quitter"
+                    FontSize="16"
+                    BackgroundColor="#7a1c1c"
+                    TextColor="White"
+                    Clicked="OnQuitClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
