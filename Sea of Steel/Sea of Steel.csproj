@@ -64,4 +64,34 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Models\" />
+	  <Folder Include="ViewModels\" />
+	  <Folder Include="Services\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Pages\AccueilPage.xaml.cs">
+	    <DependentUpon>AccueilPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\LobbyPage.xaml.cs">
+	    <DependentUpon>LobbyPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\JeuPage.xaml.cs">
+	    <DependentUpon>JeuPage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Pages\AccueilPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\LobbyPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\JeuPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 </Project>
