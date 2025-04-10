@@ -5,45 +5,74 @@
              BackgroundImageSource="ocean_background.jpg"
              Title="Sea of Steel">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center" HorizontalOptions="Center">
+    <Grid>
 
-            <Image Source="anchor_logo.png"
-                   WidthRequest="120"
-                   HeightRequest="120"
-                   HorizontalOptions="Center" />
+        <!-- Contenu principal (invisible au départ) -->
+        <ScrollView x:Name="MainContent" IsVisible="False" Opacity="0">
+            <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center" HorizontalOptions="Center">
 
-            <Label Text="Sea of Steel"
-                   FontSize="40"
-                   FontAttributes="Bold"
-                   TextColor="White"
-                   HorizontalOptions="Center" />
+                <Image Source="anchor_logo.png"
+                       WidthRequest="120"
+                       HeightRequest="120"
+                       HorizontalOptions="Center" />
 
-            <Label Text="⚓ Préparez-vous au combat naval !"
-                   FontSize="18"
-                   TextColor="White"
-                   HorizontalOptions="Center" />
+                <Label Text="Sea of Steel"
+                       FontSize="40"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
 
-            <Button Text="Rejoindre une partie"
-                    FontSize="18"
-                    CornerRadius="12"
-                    BackgroundColor="#1e3f66"
-                    TextColor="White"
-                    Clicked="OnJoinClicked" />
+                <Label Text="⚓ Préparez-vous au combat naval !"
+                       FontSize="18"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
 
-            <Button Text="Créer une partie"
-                    FontSize="18"
-                    CornerRadius="12"
-                    BackgroundColor="#356d9b"
-                    TextColor="White"
-                    Clicked="OnCreateClicked" />
+                <Button Text="Rejoindre une partie"
+                        FontSize="18"
+                        CornerRadius="12"
+                        BackgroundColor="#1e3f66"
+                        TextColor="White"
+                        Clicked="OnJoinClicked" />
 
-            <Button Text="Quitter"
-                    FontSize="16"
-                    BackgroundColor="#7a1c1c"
-                    TextColor="White"
-                    Clicked="OnQuitClicked" />
+                <Button Text="Créer une partie"
+                        FontSize="18"
+                        CornerRadius="12"
+                        BackgroundColor="#356d9b"
+                        TextColor="White"
+                        Clicked="OnCreateClicked" />
 
-        </VerticalStackLayout>
-    </ScrollView>
+                <Button Text="Quitter"
+                        FontSize="16"
+                        BackgroundColor="#7a1c1c"
+                        TextColor="White"
+                        Clicked="OnQuitClicked" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Couche d’intro -->
+        <Grid x:Name="IntroLayer"
+              BackgroundColor="#000000AA"
+              VerticalOptions="FillAndExpand"
+              HorizontalOptions="FillAndExpand">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnIntroTapped"/>
+            </Grid.GestureRecognizers>
+
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
+                <Image Source="anchor_logo.png"
+                       x:Name="LogoImage"
+                       WidthRequest="150"
+                       HeightRequest="150"
+                       HorizontalOptions="Center"/>
+                <Label Text="Sea of Steel"
+                       x:Name="IntroTitle"
+                       FontSize="48"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center"/>
+            </StackLayout>
+        </Grid>
+
+    </Grid>
 </ContentPage>
