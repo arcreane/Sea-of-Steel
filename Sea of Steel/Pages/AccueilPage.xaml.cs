@@ -1,3 +1,4 @@
+using Plugin.Maui.Audio;
 using System;
 using Microsoft.Maui.Controls;
 
@@ -5,13 +6,29 @@ namespace SeaOfSteel.Pages
 {
     public partial class AccueilPage : ContentPage
     {
+        private readonly IAudioManager _audioManager;
+        private IAudioPlayer _player;
+
         public AccueilPage()
         {
             InitializeComponent();
+            _audioManager = AudioManager.Current;
         }
 
         private async void OnIntroTapped(object sender, EventArgs e)
         {
+            try
+            {
+                // Joue un son
+                var stream = await FileSystem.OpenAppPackageFileAsync("Skeleton_Ambush.wav");
+                _player = _audioManager.CreatePlayer(stream);
+                _player.Play();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur audio : {ex.Message}");
+            }
+
             // Animation de réduction
             await LogoImage.ScaleTo(0.5, 400, Easing.CubicIn);
             await IntroTitle.ScaleTo(0.5, 400, Easing.CubicIn);
