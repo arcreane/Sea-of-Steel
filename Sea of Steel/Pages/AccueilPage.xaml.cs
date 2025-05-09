@@ -1,6 +1,6 @@
 using Plugin.Maui.Audio;
-using System;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Devices.Sensors;
 
 namespace SeaOfSteel.Pages
 {
@@ -8,6 +8,7 @@ namespace SeaOfSteel.Pages
     {
         private readonly IAudioManager _audioManager;
         private IAudioPlayer _player;
+        private bool easterEggTriggered = false;
 
         public AccueilPage()
         {
@@ -15,11 +16,58 @@ namespace SeaOfSteel.Pages
             _audioManager = AudioManager.Current;
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            if (!Accelerometer.IsMonitoring)
+            {
+                Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
+                Accelerometer.Start(SensorSpeed.UI);
+            }
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            if (Accelerometer.IsMonitoring)
+            {
+                Accelerometer.ReadingChanged -= Accelerometer_ReadingChanged;
+                Accelerometer.Stop();
+            }
+        }
+
+        private void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
+        {
+            var data = e.Reading;
+
+            if (!easterEggTriggered &&
+                (Math.Abs(data.Acceleration.X) > 2 ||
+                 Math.Abs(data.Acceleration.Y) > 2 ||
+                 Math.Abs(data.Acceleration.Z) > 2))
+            {
+                easterEggTriggered = true;
+                MainThread.BeginInvokeOnMainThread(TriggerEasterEgg);
+            }
+        }
+
+        private async void TriggerEasterEgg()
+        {
+            // Changement d’image de fond
+            BackgroundImage.Source = "sousmarin.png";
+
+            // Affichage et animation des bulles
+            Bubble1.TranslationY = 0;
+            Bubble1.IsVisible = true;
+            await Bubble1.TranslateTo(0, -600, 3000, Easing.CubicOut);
+            Bubble1.IsVisible = false;
+        }
+
         private async void OnIntroTapped(object sender, EventArgs e)
         {
             try
             {
-                // Joue un son
                 var stream = await FileSystem.OpenAppPackageFileAsync("Skeleton_Ambush.wav");
                 _player = _audioManager.CreatePlayer(stream);
                 _player.Play();
@@ -29,15 +77,12 @@ namespace SeaOfSteel.Pages
                 Console.WriteLine($"Erreur audio : {ex.Message}");
             }
 
-            // Animation de réduction
             await LogoImage.ScaleTo(0.5, 400, Easing.CubicIn);
             await IntroTitle.ScaleTo(0.5, 400, Easing.CubicIn);
 
-            // Fade out de l’intro
             await IntroLayer.FadeTo(0, 400, Easing.CubicOut);
             IntroLayer.IsVisible = false;
 
-            // Affiche le contenu principal
             MainContent.IsVisible = true;
             await MainContent.FadeTo(1, 500, Easing.CubicIn);
         }
