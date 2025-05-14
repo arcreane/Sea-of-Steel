@@ -2,13 +2,33 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SeaOfSteel.Pages.JeuPage"
-             Title="Bataille Navale"
-             BackgroundColor="#001f33">
+             Title="Champ de Bataille"
+             BackgroundColor="#001F3F">
 
-    <VerticalStackLayout Padding="20" Spacing="10">
-        <Label Text="Grille de jeu à venir..." 
-               FontSize="24"
-               HorizontalOptions="Center"
-               TextColor="White" />
+    <!-- Layout principal -->
+    <VerticalStackLayout
+      x:Name="MainLayout"
+      Padding="10"
+      Spacing="10">
+
+        <!-- Label pour indiquer le tour -->
+        <Label
+        x:Name="TourLabel"
+        Text="� vous de jouer"
+        FontSize="18"
+        HorizontalOptions="Center" />
+
+        <!-- Titre de la grille de placement -->
+        <Label
+        Text="Ma flotte"
+        FontSize="20"
+        HorizontalOptions="Center" />
+
+        <!-- Grille de placement (injection en code-behind) -->
+        <Grid
+        x:Name="GrillePlacementUI"
+        RowSpacing="1"
+        ColumnSpacing="1" />
+
     </VerticalStackLayout>
 </ContentPage>
