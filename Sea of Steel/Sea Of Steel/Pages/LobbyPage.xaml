@@ -2,40 +2,25 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SeaOfSteel.Pages.LobbyPage"
-             Title="Lobby"
-             BackgroundColor="#001f33">
+             Title="Créer une partie">
 
-    <VerticalStackLayout Padding="20" Spacing="15">
-
-        <Label Text="{Binding LobbyTitle}"
-               FontSize="28"
-               TextColor="White"
+    <VerticalStackLayout Padding="30" Spacing="20">
+        <Label Text="Choisissez un mode de jeu"
+               FontSize="22"
                HorizontalOptions="Center" />
 
-        <Label Text="Joueurs connectés :"
-               FontSize="20"
-               TextColor="White" />
+        <Button Text="Jouer contre un bot"
+                FontSize="18"
+                Clicked="JouerContreBot_Clicked"
+                BackgroundColor="LightGreen" />
 
-        <CollectionView ItemsSource="{Binding Joueurs}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border BackgroundColor="#00334e"
-                    StrokeThickness="0"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="10"
-                    Margin="5">
-                        <Label Text="{Binding Nom}" TextColor="White" FontSize="18" />
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <Button Text="Héberger une partie"
+                FontSize="18"
+                Clicked="CreerPartie_Clicked"
+                BackgroundColor="LightSkyBlue" />
 
-        <ActivityIndicator IsRunning="{Binding IsRechercheEnCours}" Color="White" />
-        <Button Text="Créer une partie" Clicked="CreerPartie_Clicked"/>
-        <Button Text="Rejoindre une partie" Clicked="RejoindrePartie_Clicked"/>
-        <Button Text="Jouer contre un bot" Clicked="JouerContreBot_Clicked"/>
-
-
+        <Button Text="Retour"
+                Clicked="OnRetourClicked"
+                BackgroundColor="LightGray"/>
     </VerticalStackLayout>
-
 </ContentPage>

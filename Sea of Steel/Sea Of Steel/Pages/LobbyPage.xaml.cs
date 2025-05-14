@@ -1,29 +1,29 @@
-﻿using SeaOfSteel.Models;
+﻿using SeaOfSteel.Pages;
 using Microsoft.Maui.Controls;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace SeaOfSteel.Pages;
-public partial class LobbyPage : ContentPage
+namespace SeaOfSteel.Pages
 {
-    public LobbyPage()
+    public partial class LobbyPage : ContentPage
     {
-        InitializeComponent();
-    }
+        public LobbyPage()
+        {
+            InitializeComponent();
+        }
 
-    private async void JouerContreBot_Clicked(object sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new JeuPage(false, true)); // Client, solo
-    }
+        private async void JouerContreBot_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new JeuPage(false, true)); // Mode solo
+        }
 
-    private async void CreerPartie_Clicked(object sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new JeuPage(true, false)); // Hôte, multijoueur
-    }
+        private async void CreerPartie_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new JeuPage(true, false)); // Hôte multijoueur
+        }
 
-    private async void RejoindrePartie_Clicked(object sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new JeuPage(false, false)); // Client, multijoueur
+        private async void OnRetourClicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
     }
 }

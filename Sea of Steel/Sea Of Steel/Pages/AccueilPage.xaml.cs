@@ -100,7 +100,7 @@ namespace SeaOfSteel.Pages
 
         private async void OnJoinClicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new LobbyPage()); // Ajoute un paramètre si besoin
+            await Navigation.PushAsync(new RecherchePartiePage()); // Ajoute un paramètre si besoin
         }
 
         private async void OnCreateClicked(object sender, EventArgs e)
