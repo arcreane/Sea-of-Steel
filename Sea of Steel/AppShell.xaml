@@ -1,15 +1,29 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Shell
-    x:Class="Sea_of_Steel.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:Sea_of_Steel"
-    Shell.FlyoutBehavior="Flyout"
-    Title="Sea_of_Steel">
+    xmlns:pages="clr-namespace:SeaOfSteel.Pages"
+    x:Class="SeaOfSteel.AppShell"
+    Shell.FlyoutBehavior="Disabled">
+
+    <!-- Pages principales -->
+    <ShellContent
+        Title="Accueil"
+        Route="AccueilPage"
+        ContentTemplate="{DataTemplate pages:AccueilPage}" />
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="Lobby"
+        Route="LobbyPage"
+        ContentTemplate="{DataTemplate pages:LobbyPage}" />
 
+    <ShellContent
+        Title="Jeu"
+        Route="JeuPage"
+        ContentTemplate="{DataTemplate pages:JeuPage}" />
+
+    <ShellContent
+        Title="Résultats"
+        Route="ResultatsPage"
+        ContentTemplate="{DataTemplate pages:ResultatsPage}" />
 </Shell>

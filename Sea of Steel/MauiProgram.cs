@@ -1,7 +1,7 @@
 ﻿using Plugin.Maui.Audio;
 using Microsoft.Extensions.Logging;
 
-namespace Sea_of_Steel;
+namespace SeaOfSteel;
 
 public static class MauiProgram
 {

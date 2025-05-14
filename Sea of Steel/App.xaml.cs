@@ -1,13 +1,16 @@
 ﻿using SeaOfSteel.Pages;
 
-namespace Sea_of_Steel
+namespace SeaOfSteel
 {
     public partial class App : Application
     {
         public App()
         {
             InitializeComponent();
-            MainPage = new NavigationPage(new AccueilPage());
+        }
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(new AppShell());
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace Sea_of_Steel;
+namespace SeaOfSteel;
 
 [Application]
 public class MainApplication : MauiApplication

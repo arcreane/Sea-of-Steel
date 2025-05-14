@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace Sea_of_Steel;
+namespace SeaOfSteel;
 
 public class Program
 {

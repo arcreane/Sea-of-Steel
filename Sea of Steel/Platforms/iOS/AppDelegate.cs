@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace Sea_of_Steel;
+namespace SeaOfSteel;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate
