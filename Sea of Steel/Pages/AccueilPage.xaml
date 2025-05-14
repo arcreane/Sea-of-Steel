@@ -2,13 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SeaOfSteel.Pages.AccueilPage"
-             Title="Sea of Steel">
+             Title="Sea of Steel"
+             BackgroundColor="Black">
 
     <AbsoluteLayout>
 
         <!-- Image de fond dynamique -->
-        <Image x:Name="BackgroundImage"
-               Source="navire.png"
+        <Image x:Name="BackgroundImageView"
+               Source="navire.jpg"
                Aspect="AspectFill"
                AbsoluteLayout.LayoutBounds="0,0,1,1"
                AbsoluteLayout.LayoutFlags="All" />
@@ -41,7 +42,7 @@
                            TextColor="White"
                            HorizontalOptions="Center" />
 
-                    <Label Text="⚓ Préparez-vous au combat naval !"
+                    <Label Text="Préparez-vous au combat naval !"
                            FontSize="18"
                            TextColor="White"
                            HorizontalOptions="Center" />
@@ -72,25 +73,34 @@
             <!-- Couche d’intro -->
             <Grid x:Name="IntroLayer"
                   BackgroundColor="#000000AA"
-                  VerticalOptions="FillAndExpand"
-                  HorizontalOptions="FillAndExpand">
+                  AbsoluteLayout.LayoutBounds="0,0,1,1"
+                  AbsoluteLayout.LayoutFlags="All">
+
                 <Grid.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnIntroTapped"/>
                 </Grid.GestureRecognizers>
 
-                <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
-                    <Image Source="anchor_logo.png"
-                           x:Name="LogoImage"
-                           WidthRequest="150"
-                           HeightRequest="150"
-                           HorizontalOptions="Center"/>
-                    <Label Text="Sea of Steel"
-                           x:Name="IntroTitle"
-                           FontSize="48"
-                           FontAttributes="Bold"
-                           TextColor="White"
-                           HorizontalOptions="Center"/>
-                </StackLayout>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackLayout Grid.Row="1" Spacing="20" HorizontalOptions="Center">
+                        <Image Source="anchor_logo.png"
+                               x:Name="LogoImage"
+                               WidthRequest="150"
+                               HeightRequest="150"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Sea of Steel"
+                               x:Name="IntroTitle"
+                               FontSize="48"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+                </Grid>
             </Grid>
 
         </Grid>
