@@ -1,65 +1,29 @@
-using System.Collections.ObjectModel;
+ï»¿using SeaOfSteel.Models;
 using Microsoft.Maui.Controls;
-using SeaOfSteel.Pages;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-
-namespace SeaOfSteel.Pages
+namespace SeaOfSteel.Pages;
+public partial class LobbyPage : ContentPage
 {
-    public partial class LobbyPage : ContentPage
+    public LobbyPage()
     {
-        public ObservableCollection<Joueur> Joueurs { get; set; } = new();
-        public string LobbyTitle { get; set; }
-        public string BoutonActionTexte => _isHote ? "Lancer la partie" : "En attente de l'hôte...";
-        public bool PeutLancer => _isHote && Joueurs.Count > 1;
-        public bool IsRechercheEnCours { get; set; }
-
-        private readonly bool _isHote;
-
-        public LobbyPage(bool joinMode)
-        {
-            InitializeComponent();
-            _isHote = !joinMode;
-            LobbyTitle = _isHote ? "Lobby - Hôte" : "Lobby - Client";
-
-            // Pour test : on ajoute le joueur local
-            Joueurs.Add(new Joueur { Nom = "Moi (Toi)" });
-
-            BindingContext = this;
-
-            if (!_isHote)
-                StartRechercheHote(); // Simulation ou détection
-            else
-                DémarrerServeur();
-        }
-
-        private void DémarrerServeur()
-        {
-            // Simule des connexions de joueurs (à remplacer par vrai Bluetooth/WiFi P2P)
-            Joueurs.Add(new Joueur { Nom = "Joueur 2" });
-        }
-
-        private void StartRechercheHote()
-        {
-            IsRechercheEnCours = true;
-            // Code pour trouver et rejoindre un hôte ici
-        }
-
-        private async void OnActionClicked(object sender, EventArgs e)
-        {
-            if (_isHote && PeutLancer)
-            {
-                await Navigation.PushAsync(new JeuPage(Joueurs));
-            }
-        }
-
-        private async void OnRetourClicked(object sender, EventArgs e)
-        {
-            await Navigation.PopAsync();
-        }
+        InitializeComponent();
     }
 
-    public class Joueur
+    private async void JouerContreBot_Clicked(object sender, EventArgs e)
     {
-        public string Nom { get; set; }
+        await Navigation.PushAsync(new JeuPage(false, true)); // Client, solo
+    }
+
+    private async void CreerPartie_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PushAsync(new JeuPage(true, false)); // HÃ´te, multijoueur
+    }
+
+    private async void RejoindrePartie_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PushAsync(new JeuPage(false, false)); // Client, multijoueur
     }
 }

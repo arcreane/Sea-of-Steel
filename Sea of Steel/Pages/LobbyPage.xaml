@@ -19,27 +19,23 @@
         <CollectionView ItemsSource="{Binding Joueurs}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame BackgroundColor="#00334e" CornerRadius="12" Padding="10" Margin="5">
+                    <Border BackgroundColor="#00334e"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="10"
+                    Margin="5">
                         <Label Text="{Binding Nom}" TextColor="White" FontSize="18" />
-                    </Frame>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
         <ActivityIndicator IsRunning="{Binding IsRechercheEnCours}" Color="White" />
+        <Button Text="Créer une partie" Clicked="CreerPartie_Clicked"/>
+        <Button Text="Rejoindre une partie" Clicked="RejoindrePartie_Clicked"/>
+        <Button Text="Jouer contre un bot" Clicked="JouerContreBot_Clicked"/>
 
-        <Button Text="{Binding BoutonActionTexte}"
-                FontSize="18"
-                BackgroundColor="#0077b6"
-                TextColor="White"
-                CornerRadius="12"
-                Clicked="OnActionClicked"
-                IsEnabled="{Binding PeutLancer}" />
-
-        <Button Text="Retour"
-                BackgroundColor="#7a1c1c"
-                TextColor="White"
-                Clicked="OnRetourClicked" />
 
     </VerticalStackLayout>
+
 </ContentPage>
