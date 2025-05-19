@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SeaOfSteel.Pages.NomHotePage"
+             Title="Nom d'hôte">
+
+    <VerticalStackLayout Padding="30" Spacing="20">
+        <Label Text="Entrez un nom pour votre partie"
+               FontSize="20"
+               HorizontalOptions="Center" />
+
+        <Entry x:Name="NomEntry"
+               Placeholder="Ex: Capitaine Jules"
+               FontSize="18" />
+
+        <Button Text="Valider"
+                FontSize="18"
+                Clicked="OnValiderClicked"
+                BackgroundColor="LightGreen" />
+
+        <Label x:Name="AttenteLabel"
+               Text="En attente d'un joueur..."
+               FontSize="16"
+               IsVisible="False"
+               HorizontalOptions="Center" />
+
+        <ActivityIndicator x:Name="Loading"
+                           IsVisible="False"
+                           IsRunning="False"
+                           Color="DodgerBlue" />
+    </VerticalStackLayout>
+</ContentPage>

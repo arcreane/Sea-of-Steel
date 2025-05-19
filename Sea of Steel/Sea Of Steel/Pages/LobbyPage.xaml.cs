@@ -18,7 +18,7 @@ namespace SeaOfSteel.Pages
 
         private async void CreerPartie_Clicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new JeuPage(true, false)); // Hôte multijoueur
+            await Navigation.PushAsync(new NomHotePage()); // Hôte multijoueur
         }
 
         private async void OnRetourClicked(object sender, EventArgs e)
