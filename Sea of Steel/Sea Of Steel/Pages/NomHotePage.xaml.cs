@@ -23,11 +23,14 @@ namespace SeaOfSteel.Pages
             Loading.IsVisible = true;
             Loading.IsRunning = true;
 
-            // Simule une attente de connexion d’un autre joueur
-            await Task.Delay(3000); // À remplacer plus tard par la vraie détection Bluetooth
+            // Simule une annonce - remplacer par Bluetooth server plus tard
+            var annonce = $"SeaOfSteel-{nom}";
+            Console.WriteLine($"Annonce simulée : {annonce}");
 
-            // Quand un joueur est connecté :
+            // Simulation d'un client qui se connecte après 3 sec
+            await Task.Delay(3000);
             await Navigation.PushAsync(new JeuPage(true, false));
         }
+
     }
 }

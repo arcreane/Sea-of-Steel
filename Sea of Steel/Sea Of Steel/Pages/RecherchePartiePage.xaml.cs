@@ -1,4 +1,8 @@
 using Microsoft.Maui.Controls;
+using Plugin.BLE;
+using Plugin.BLE.Abstractions.Contracts;
+using Plugin.BLE.Abstractions.EventArgs;
+using Plugin.BLE.iOS;
 using System;
 using System.Collections.Generic;
 
@@ -6,6 +10,8 @@ namespace SeaOfSteel.Pages
 {
     public partial class RecherchePartiePage : ContentPage
     {
+        private readonly IAdapter _adapter = CrossBluetoothLE.Current.Adapter;
+        private readonly IBluetoothLE _ble = CrossBluetoothLE.Current;
         public class PartieDispo
         {
             public string Nom { get; set; }
@@ -22,16 +28,38 @@ namespace SeaOfSteel.Pages
 
         private async void DémarrerRecherche()
         {
-            // Simulation — à remplacer avec détection Bluetooth réelle
-            await Task.Delay(2000);
-
-            _partiesDetectees = new List<PartieDispo>
+            if (!_ble.IsAvailable || !_ble.IsOn)
             {
-                new() { Nom = "Partie de Jules", Adresse = "AA:BB:CC:DD:01" },
-                new() { Nom = "Naval Battle", Adresse = "AA:BB:CC:DD:02" }
+                await DisplayAlert("Bluetooth", "Bluetooth désactivé ou non disponible.", "OK");
+                return;
+            }
+
+            _adapter.DeviceDiscovered += (s, a) =>
+            {
+                var nom = a.Device.Name;
+
+                if (!string.IsNullOrWhiteSpace(nom) && nom.StartsWith("SeaOfSteel-"))
+                {
+                    _partiesDetectees.Add(new PartieDispo
+                    {
+                        Nom = nom.Replace("SeaOfSteel-", ""),
+                        Adresse = a.Device.Id.ToString()
+                    });
+
+                    ListeParties.ItemsSource = null;
+                    ListeParties.ItemsSource = _partiesDetectees;
+                }
             };
 
-            ListeParties.ItemsSource = _partiesDetectees;
+            try
+            {
+                await _adapter.StartScanningForDevicesAsync();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Erreur", $"Erreur scan : {ex.Message}", "OK");
+            }
+
             LoadingIndicator.IsRunning = false;
             LoadingIndicator.IsVisible = false;
             ListeParties.IsVisible = true;
