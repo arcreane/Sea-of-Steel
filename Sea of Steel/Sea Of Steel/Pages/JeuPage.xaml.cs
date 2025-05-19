@@ -3,6 +3,8 @@ using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Maui.Devices;
+
 
 namespace SeaOfSteel.Pages;
 
@@ -198,7 +200,10 @@ public partial class JeuPage : ContentPage
             {
                 caseCible.BackgroundColor = Colors.Red;
                 touche = true;
+                VibrerImpact();
+
                 if (bateau.EstCoule)
+                    VibrerExplosion();
                     DisplayAlert("Bateau coulé", $"Vous avez coulé le {bateau.Nom} !", "OK");
                 break;
             }
@@ -248,8 +253,10 @@ public partial class JeuPage : ContentPage
             {
                 _grillePlacement[tir.Row, tir.Col].BackgroundColor = Colors.Orange;
                 touche = true;
+                VibrerImpact();
 
                 if (bateau.EstCoule)
+                    VibrerExplosion();
                     DisplayAlert("Adversaire", $"L'adversaire a coulé votre {bateau.Nom} !", "OK");
                 break;
             }
@@ -355,6 +362,32 @@ public partial class JeuPage : ContentPage
                     placé = true;
                 }
             }
+        }
+    }
+    private void VibrerImpact()
+    {
+        try
+        {
+            Vibration.Vibrate(TimeSpan.FromMilliseconds(300));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Erreur de vibration (impact) : " + ex.Message);
+        }
+    }
+    private async void VibrerExplosion()
+    {
+        try
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                Vibration.Vibrate(TimeSpan.FromMilliseconds(200));
+                await Task.Delay(150);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Erreur de vibration (explosion) : " + ex.Message);
         }
     }
 
