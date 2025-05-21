@@ -61,6 +61,12 @@
                             TextColor="White"
                             Clicked="OnCreateClicked" />
 
+                    <Button Text="Wiki" 
+                            Clicked="OnWikiClicked"
+                            HorizontalOptions="Center"
+                            VerticalOptions="End"
+                            Margin="0,20"/>
+
                     <Button Text="Quitter"
                             FontSize="16"
                             BackgroundColor="#7a1c1c"

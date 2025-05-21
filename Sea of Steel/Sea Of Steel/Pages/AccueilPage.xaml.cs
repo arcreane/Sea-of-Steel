@@ -107,6 +107,10 @@ namespace SeaOfSteel.Pages
         {
             await Navigation.PushAsync(new LobbyPage()); // Ajoute un paramètre si besoin
         }
+        private async void OnWikiClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("WikiPage");
+        }
 
         private void OnQuitClicked(object sender, EventArgs e)
         {
