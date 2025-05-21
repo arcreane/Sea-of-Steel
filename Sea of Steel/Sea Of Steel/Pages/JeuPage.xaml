@@ -5,30 +5,37 @@
              Title="Champ de Bataille"
              BackgroundColor="#001F3F">
 
-    <!-- Layout principal -->
-    <VerticalStackLayout
-      x:Name="MainLayout"
-      Padding="10"
-      Spacing="10">
+    <VerticalStackLayout Padding="10" Spacing="10">
 
-        <!-- Label pour indiquer le tour -->
-        <Label
-        x:Name="TourLabel"
-        Text="� vous de jouer"
-        FontSize="18"
-        HorizontalOptions="Center" />
+        <!-- État du tour -->
+        <Label x:Name="TourLabel"
+               Text="À vous de jouer"
+               FontSize="18"
+               HorizontalOptions="Center" />
 
-        <!-- Titre de la grille de placement -->
-        <Label
-        Text="Ma flotte"
-        FontSize="20"
-        HorizontalOptions="Center" />
+        <!-- Les deux grilles côte à côte -->
+        <HorizontalStackLayout x:Name="GrillesLayout"
+                               HorizontalOptions="Center"
+                               Spacing="20">
 
-        <!-- Grille de placement (injection en code-behind) -->
-        <Grid
-        x:Name="GrillePlacementUI"
-        RowSpacing="1"
-        ColumnSpacing="1" />
+            <!-- Grille de placement (ma flotte) -->
+            <VerticalStackLayout>
+                <Label Text="Ma flotte"
+                       FontSize="20"
+                       HorizontalOptions="Center" />
+                <Grid x:Name="PlacementGrid"/>
+            </VerticalStackLayout>
+
+            <!-- Grille de tir (cachée tant que le placement n’est pas terminé) -->
+            <VerticalStackLayout>
+                <Label Text="Grille de tir"
+                       FontSize="20"
+                       HorizontalOptions="Center" />
+                <Grid x:Name="TirGrid"
+                      IsVisible="False" />
+            </VerticalStackLayout>
+
+        </HorizontalStackLayout>
 
     </VerticalStackLayout>
 </ContentPage>

@@ -1,23 +1,23 @@
-using SeaOfSteel.Models;
+ï»¿using SeaOfSteel.Models;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Devices;
+using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Dispatching;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Maui.Devices;
-
 
 namespace SeaOfSteel.Pages;
 
 public partial class JeuPage : ContentPage
 {
     private const int GridSize = 10;
+
+    // â€”â€”â€” UI â€”â€”â€”
     private readonly Button[,] _grillePlacement = new Button[GridSize, GridSize];
     private readonly Button[,] _grilleTir = new Button[GridSize, GridSize];
 
-    private readonly Grid _grillePlacementUI = new();
-    private readonly Grid _grilleTirUI = new();
-    private readonly Label _tourLabel;
-
+    // â€”â€”â€” Ã‰tat de jeu â€”â€”â€”
     private readonly bool _isHost;
     private readonly bool _modeSolo;
     private bool _phasePlacement = true;
@@ -27,16 +27,17 @@ public partial class JeuPage : ContentPage
     private readonly List<Bateau> _bateauxAdverses = new();
 
     private readonly List<(int Row, int Col)> _positionsTemp = new();
-    private readonly List<(int Row, int Col)> _casesDejaTirees = new();
+    private readonly List<(int Row, int Col)> _casesJoueurTirees = new();
+    private readonly List<(int Row, int Col)> _casesAdversaireTirees = new();
 
     private int _bateauEnCoursIndex = 0;
     private readonly List<Bateau> _listeBateauxAJouer = new()
     {
-        new Bateau { Nom = "Porte-avion", Taille = 5 },
-        new Bateau { Nom = "Croiseur", Taille = 4 },
+        new Bateau { Nom = "Porte-avion",       Taille = 5 },
+        new Bateau { Nom = "Croiseur",          Taille = 4 },
         new Bateau { Nom = "Contre-torpilleur", Taille = 3 },
-        new Bateau { Nom = "Sous-marin", Taille = 3 },
-        new Bateau { Nom = "Torpilleur", Taille = 2 }
+        new Bateau { Nom = "Sous-marin",        Taille = 3 },
+        new Bateau { Nom = "Torpilleur",        Taille = 2 }
     };
 
     private enum Direction { None, Horizontal, Vertical }
@@ -48,35 +49,23 @@ public partial class JeuPage : ContentPage
         _isHost = isHost;
         _modeSolo = modeSolo;
 
-        _tourLabel = new Label
-        {
-            Text = "À vous de jouer",
-            FontSize = 18,
-            HorizontalOptions = LayoutOptions.Center,
-            Margin = new Thickness(0, 10)
-        };
-
-        CreateGrid(_grillePlacement, _grillePlacementUI);
-        CreateGrid(_grilleTir, _grilleTirUI);
-
-        Content = new VerticalStackLayout
-        {
-            Children =
-            {
-                _tourLabel,
-                new Label { Text = "Ma flotte", FontSize = 20, HorizontalOptions = LayoutOptions.Center },
-                _grillePlacementUI
-            }
-        };
+        // Construction des deux grilles
+        CreateGrid(_grillePlacement, PlacementGrid);
+        CreateGrid(_grilleTir, TirGrid);
 
         if (_modeSolo)
-        {
-            GénérerBateauxAdverses();
-        }
+            GÃ©nÃ©rerBateauxAdverses();
 
-        DisplayAlert("Placement", $"Placez votre {_listeBateauxAJouer[_bateauEnCoursIndex].Nom} ({_listeBateauxAJouer[_bateauEnCoursIndex].Taille} cases)", "OK");
+        // Premier message de placement
+        _ = DisplayAlert("Placement",
+                         $"Placez votre {_listeBateauxAJouer[_bateauEnCoursIndex].Nom} " +
+                         $"({_listeBateauxAJouer[_bateauEnCoursIndex].Taille} cases)",
+                         "OK");
     }
 
+    // -------------------------------------------------
+    //  Construction de grille gÃ©nÃ©rique
+    // -------------------------------------------------
     private void CreateGrid(Button[,] grille, Grid grilleUI)
     {
         grilleUI.RowDefinitions.Clear();
@@ -97,77 +86,98 @@ public partial class JeuPage : ContentPage
                     BackgroundColor = Colors.LightBlue,
                     WidthRequest = 30,
                     HeightRequest = 30,
-                    Margin = new Thickness(1),
+                    Margin = 1,
                     CornerRadius = 5,
                     BindingContext = new Position(row, col)
                 };
-
                 button.Clicked += OnGridButtonClicked;
+
                 grille[row, col] = button;
                 grilleUI.Add(button, col, row);
             }
         }
     }
 
+    // -------------------------------------------------
+    //  Gestion des clics (placement / tir)
+    // -------------------------------------------------
     private async void OnGridButtonClicked(object? sender, EventArgs e)
     {
-        if (sender is not Button button || button.BindingContext is not Position position)
+        if (sender is not Button button || button.BindingContext is not Position pos)
             return;
 
         if (_phasePlacement)
         {
-            if (_bateauEnCoursIndex >= _listeBateauxAJouer.Count || _positionsTemp.Contains((position.Row, position.Col)) || _bateauxJoueur.Any(b => b.Positions.Contains((position.Row, position.Col))))
+            if (!TraiterPlacement(button, pos))
                 return;
-
-            if (_positionsTemp.Count == 1)
-            {
-                var first = _positionsTemp[0];
-                if (!IsAdjacent(position.Row, position.Col))
-                    return;
-
-                if (first.Row == position.Row)
-                    _currentDirection = Direction.Horizontal;
-                else if (first.Col == position.Col)
-                    _currentDirection = Direction.Vertical;
-                else
-                    return;
-            }
-            else if (_positionsTemp.Count > 1)
-            {
-                if (!IsInLineWithDirection(position.Row, position.Col) || !IsAdjacent(position.Row, position.Col))
-                    return;
-            }
-
-            button.BackgroundColor = Colors.Gray;
-            _positionsTemp.Add((position.Row, position.Col));
 
             var bateauActuel = _listeBateauxAJouer[_bateauEnCoursIndex];
 
             if (_positionsTemp.Count == bateauActuel.Taille)
             {
-                bateauActuel.Positions = new List<(int Row, int Col)>(_positionsTemp);
+                bateauActuel.Positions = new List<(int, int)>(_positionsTemp);
                 _bateauxJoueur.Add(bateauActuel);
+
                 _positionsTemp.Clear();
                 _currentDirection = Direction.None;
                 _bateauEnCoursIndex++;
 
                 if (_bateauEnCoursIndex < _listeBateauxAJouer.Count)
                 {
-                    await DisplayAlert("Placement", $"Placez votre {_listeBateauxAJouer[_bateauEnCoursIndex].Nom} ({_listeBateauxAJouer[_bateauEnCoursIndex].Taille} cases)", "OK");
+                    await DisplayAlert("Placement",
+                                       $"Placez votre {_listeBateauxAJouer[_bateauEnCoursIndex].Nom} " +
+                                       $"({_listeBateauxAJouer[_bateauEnCoursIndex].Taille} cases)",
+                                       "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Placement terminé", "Tous les bateaux sont placés !", "Commencer le jeu");
+                    await DisplayAlert("Placement terminÃ©",
+                                       "Tous les bateaux sont placÃ©s !",
+                                       "Commencer le jeu");
+
+                    // Passage Ã  la phase de jeu
                     _phasePlacement = false;
-                    AfficherGrillesDeJeu();
-                    DémarrerTourParTour();
+                    TirGrid.IsVisible = true;          // Affiche la grille de tir
+                    PlacementGrid.IsEnabled = false;     // EmpÃªche de Â« tirer Â» sur soi
+                    DÃ©marrerTourParTour();
                 }
             }
         }
         else
         {
-            TirerSurCase(button, position);
+            // On ne doit cliquer que dans la grille de tir
+            if (!ReferenceEquals(button.Parent, TirGrid))
+                return;
+
+            TirerSurCase(button, pos);
         }
+    }
+
+    private bool TraiterPlacement(Button button, Position position)
+    {
+        if (_bateauEnCoursIndex >= _listeBateauxAJouer.Count ||
+            _positionsTemp.Contains((position.Row, position.Col)) ||
+            _bateauxJoueur.Any(b => b.Positions.Contains((position.Row, position.Col))))
+            return false;
+
+        if (_positionsTemp.Count == 1)
+        {
+            var first = _positionsTemp[0];
+            if (!IsAdjacent(position.Row, position.Col)) return false;
+
+            _currentDirection = first.Row == position.Row ? Direction.Horizontal :
+                                 first.Col == position.Col ? Direction.Vertical : Direction.None;
+            if (_currentDirection == Direction.None) return false;
+        }
+        else if (_positionsTemp.Count > 1)
+        {
+            if (!IsInLineWithDirection(position.Row, position.Col) || !IsAdjacent(position.Row, position.Col))
+                return false;
+        }
+
+        button.BackgroundColor = Colors.Gray;
+        _positionsTemp.Add((position.Row, position.Col));
+        return true;
     }
 
     private bool IsInLineWithDirection(int row, int col)
@@ -181,57 +191,51 @@ public partial class JeuPage : ContentPage
         };
     }
 
-    private bool IsAdjacent(int row, int col)
-    {
-        return _positionsTemp.Any(p => Math.Abs(p.Row - row) + Math.Abs(p.Col - col) == 1);
-    }
+    private bool IsAdjacent(int row, int col) =>
+        _positionsTemp.Any(p => Math.Abs(p.Row - row) + Math.Abs(p.Col - col) == 1);
 
     private void TirerSurCase(Button caseCible, Position position)
     {
-        if (!_estMonTour || _casesDejaTirees.Contains((position.Row, position.Col)))
+        if (!_estMonTour || _casesJoueurTirees.Contains((position.Row, position.Col)))
             return;
 
-        _casesDejaTirees.Add((position.Row, position.Col));
+        _casesJoueurTirees.Add((position.Row, position.Col));
         bool touche = false;
 
         foreach (var bateau in _bateauxAdverses)
         {
-            if (bateau.Positions.Remove((position.Row, position.Col)))
-            {
-                caseCible.BackgroundColor = Colors.Red;
-                touche = true;
-                VibrerImpact();
+            if (!bateau.Positions.Remove((position.Row, position.Col))) continue;
 
-                if (bateau.EstCoule)
-                    VibrerExplosion();
-                    DisplayAlert("Bateau coulé", $"Vous avez coulé le {bateau.Nom} !", "OK");
-                break;
+            caseCible.BackgroundColor = Colors.Red;
+            touche = true;
+            VibrerImpact();
+
+            if (bateau.EstCoule)
+            {
+                VibrerExplosion();
+                DisplayAlert("Bateau coulÃ©", $"Vous avez coulÃ© le {bateau.Nom} !", "OK");
             }
+            break;
+        }
 
         if (!touche)
             caseCible.BackgroundColor = Colors.LightGray;
-        }
-        if (_bateauxAdverses.All(b => b.Positions.Count == 0))
+
+        if (_bateauxAdverses.All(b => b.EstCoule))
         {
             Dispatcher.Dispatch(async () =>
             {
-                await DisplayAlert("Victoire", "Tous les bateaux ennemis ont été coulés !", "OK");
+                await DisplayAlert("Victoire", "Tous les bateaux ennemis ont Ã©tÃ© coulÃ©s !", "OK");
                 await Navigation.PushAsync(new ResultatsPage("Victoire !"));
             });
             return;
         }
 
         _estMonTour = false;
-        _tourLabel.Text = "Tour de l'adversaire";
+        TourLabel.Text = "Tour de l'adversaire";
 
         if (_modeSolo)
-        {
             Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(1), SimulerTourAdverse);
-        }
-        else
-        {
-            // Future implémentation Bluetooth/Wifi P2P ici
-        }
     }
 
     private void SimulerTourAdverse()
@@ -242,9 +246,9 @@ public partial class JeuPage : ContentPage
         do
         {
             tir = (rand.Next(0, GridSize), rand.Next(0, GridSize));
-        } while (_casesDejaTirees.Contains(tir));
+        } while (_casesAdversaireTirees.Contains(tir));
 
-        _casesDejaTirees.Add(tir);
+        _casesAdversaireTirees.Add(tir);
         bool touche = false;
 
         foreach (var bateau in _bateauxJoueur)
@@ -256,83 +260,92 @@ public partial class JeuPage : ContentPage
                 VibrerImpact();
 
                 if (bateau.EstCoule)
+                {
                     VibrerExplosion();
-                    DisplayAlert("Adversaire", $"L'adversaire a coulé votre {bateau.Nom} !", "OK");
+                    DisplayAlert("Adversaire", $"L'adversaire a coulÃ© votre {bateau.Nom} !", "OK");
+                }
                 break;
             }
         }
 
-        
-
         if (!touche)
             _grillePlacement[tir.Row, tir.Col].BackgroundColor = Colors.LightSlateGray;
-        if (_bateauxJoueur.All(b => b.Positions.Count == 0))
+
+        if (_bateauxJoueur.All(b => b.EstCoule))
         {
             Dispatcher.Dispatch(async () =>
             {
-                await DisplayAlert("Défaite", "Tous vos bateaux ont été coulés !", "OK");
-                await Navigation.PushAsync(new ResultatsPage("Défaite..."));
+                await DisplayAlert("DÃ©faite", "Tous vos bateaux ont Ã©tÃ© coulÃ©s !", "OK");
+                await Navigation.PushAsync(new ResultatsPage("DÃ©faite..."));
             });
             return;
         }
-        _estMonTour = true;
-        _tourLabel.Text = "À vous de jouer";
-    }
 
-    private void DémarrerTourParTour()
-    {
         _estMonTour = true;
-        _tourLabel.Text = "À vous de jouer";
+        TourLabel.Text = "Ã€ vous de jouer";
     }
 
     private void AfficherGrillesDeJeu()
     {
-        var placementContainer = new VerticalStackLayout
+        var placement = new VerticalStackLayout
         {
-            Children =
-            {
+            Children = {
                 new Label { Text = "Ma flotte", FontSize = 20, HorizontalOptions = LayoutOptions.Center },
-                _grillePlacementUI
+                PlacementGrid
             }
         };
 
-        var tirContainer = new VerticalStackLayout
+        var tir = new VerticalStackLayout
         {
-            Children =
-            {
+            Children = {
                 new Label { Text = "Grille de tir", FontSize = 20, HorizontalOptions = LayoutOptions.Center },
-                _grilleTirUI
+                TirGrid
             }
-        };
-
-        var gameLayout = new HorizontalStackLayout
-        {
-            HorizontalOptions = LayoutOptions.Center,
-            Spacing = 20,
-            Padding = 10,
-            Children = { placementContainer, tirContainer }
         };
 
         Content = new VerticalStackLayout
         {
-            Children =
-            {
-                _tourLabel,
-                gameLayout
+            Children = {
+                TourLabel,
+                new HorizontalStackLayout
+                {
+                    Spacing = 20,
+                    Padding = 10,
+                    HorizontalOptions = LayoutOptions.Center,
+                    Children = { placement, tir }
+                }
             }
         };
     }
 
-    private void GénérerBateauxAdverses()
+    private void DÃ©marrerTourParTour()
+    {
+        _estMonTour = true;
+        TourLabel.Text = "Ã€ vous de jouer";
+    }
+
+    private void VibrerImpact()
+    {
+        try { Vibration.Default.Vibrate(100); } catch { }
+    }
+
+    private void VibrerExplosion()
+    {
+        try { Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(300)); } catch { }
+    }
+
+    private record Position(int Row, int Col);
+
+    private void GÃ©nÃ©rerBateauxAdverses()
     {
         var rand = new Random();
         _bateauxAdverses.Clear();
 
         foreach (var modele in _listeBateauxAJouer)
         {
-            bool placé = false;
+            bool placÃ© = false;
 
-            while (!placé)
+            while (!placÃ©)
             {
                 int row = rand.Next(0, GridSize);
                 int col = rand.Next(0, GridSize);
@@ -351,7 +364,8 @@ public partial class JeuPage : ContentPage
                     positions.Add((r, c));
                 }
 
-                if (positions.Count == modele.Taille && !_bateauxAdverses.Any(b => b.Positions.Intersect(positions).Any()))
+                if (positions.Count == modele.Taille &&
+                    !_bateauxAdverses.Any(b => b.Positions.Intersect(positions).Any()))
                 {
                     _bateauxAdverses.Add(new Bateau
                     {
@@ -359,37 +373,9 @@ public partial class JeuPage : ContentPage
                         Taille = modele.Taille,
                         Positions = positions
                     });
-                    placé = true;
+                    placÃ© = true;
                 }
             }
         }
     }
-    private void VibrerImpact()
-    {
-        try
-        {
-            Vibration.Vibrate(TimeSpan.FromMilliseconds(300));
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Erreur de vibration (impact) : " + ex.Message);
-        }
-    }
-    private async void VibrerExplosion()
-    {
-        try
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                Vibration.Vibrate(TimeSpan.FromMilliseconds(200));
-                await Task.Delay(150);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Erreur de vibration (explosion) : " + ex.Message);
-        }
-    }
-
-    private record Position(int Row, int Col);
 }
