@@ -26,4 +26,10 @@
         Title="Résultats"
         Route="ResultatsPage"
         ContentTemplate="{DataTemplate pages:ResultatsPage}" />
+    
+    <ShellContent 
+        Title="Wiki" 
+        Route="WikiPage"
+        ContentTemplate="{DataTemplate pages:WikiPage}"  />
+
 </Shell>
