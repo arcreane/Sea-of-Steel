@@ -2,7 +2,6 @@ using Microsoft.Maui.Controls;
 using Plugin.BLE;
 using Plugin.BLE.Abstractions.Contracts;
 using Plugin.BLE.Abstractions.EventArgs;
-using Plugin.BLE.iOS;
 using System;
 using System.Collections.Generic;
 
