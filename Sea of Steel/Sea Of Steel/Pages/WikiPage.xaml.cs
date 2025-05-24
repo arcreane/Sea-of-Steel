@@ -9,18 +9,23 @@ namespace SeaOfSteel.Pages;
 
 public partial class WikiPage : ContentPage
 {
-    private readonly Dictionary<string, string> paysCategories = new()
+    private readonly Dictionary<string, string> nations = new()
     {
-        {"États-Unis", "Liste_des_navires_de_l'US_Navy"},
-        {"France", "Liste_des_navires_de_la_Marine_nationale_française"},
-        {"Royaume-Uni", "Liste_des_navires_de_la_Royal_Navy"},
-        {"Japon", "Liste_des_navires_de_la_Marine_impériale_japonaise"}
+        {"États-Unis", "usa"},
+        {"Japon", "japan"},
+        {"Allemagne", "germany"},
+        {"URSS", "ussr"},
+        {"France", "france"},
+        {"Royaume-Uni", "uk"}
     };
+
+    private const string ApplicationId = "DEMO"; // <-- À remplacer par ta vraie clé API
+    private const string BaseUrl = "https://api.worldofwarships.eu/wows/encyclopedia/ships/";
 
     public WikiPage()
     {
         InitializeComponent();
-        PaysPicker.ItemsSource = paysCategories.Keys.ToList();
+        PaysPicker.ItemsSource = nations.Keys.ToList();
     }
 
     private async void OnPaysChanged(object sender, EventArgs e)
@@ -28,32 +33,32 @@ public partial class WikiPage : ContentPage
         if (PaysPicker.SelectedIndex == -1) return;
 
         string selectedKey = PaysPicker.SelectedItem.ToString();
-        if (selectedKey != null && paysCategories.TryGetValue(selectedKey, out string pageTitre))
+        if (nations.TryGetValue(selectedKey, out string nationCode))
         {
-            await ChargerNaviresDepuisWikipedia(pageTitre);
+            await ChargerNaviresDepuisWargaming(nationCode);
         }
     }
 
-    private async Task ChargerNaviresDepuisWikipedia(string pageTitre)
+    private async Task ChargerNaviresDepuisWargaming(string nationCode)
     {
         try
         {
             using var client = new HttpClient();
-            string url = $"https://fr.wikipedia.org/w/api.php?action=parse&page={Uri.EscapeDataString(pageTitre)}&format=json&prop=sections";
+            string url = $"{BaseUrl}?application_id={ApplicationId}&nation={nationCode}";
 
             var response = await client.GetStringAsync(url);
             using var doc = JsonDocument.Parse(response);
 
-            var sections = doc.RootElement.GetProperty("parse").GetProperty("sections");
-
-            var navires = new List<WikiNavire>();
-            foreach (var section in sections.EnumerateArray())
+            var navires = new List<NavireWows>();
+            foreach (var item in doc.RootElement.GetProperty("data").EnumerateObject())
             {
-                if (section.TryGetProperty("line", out var line))
+                var ship = item.Value;
+                if (ship.TryGetProperty("name", out var nameProp))
                 {
-                    string titre = line.GetString();
-                    if (!string.IsNullOrEmpty(titre))
-                        navires.Add(new WikiNavire { Title = titre });
+                    navires.Add(new NavireWows
+                    {
+                        Nom = nameProp.GetString()
+                    });
                 }
             }
 
@@ -61,12 +66,12 @@ public partial class WikiPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Erreur", $"Impossible de charger les navires : {ex.Message}", "OK");
+            await DisplayAlert("Erreur", $"Erreur lors du chargement : {ex.Message}", "OK");
         }
     }
 
-    public class WikiNavire
+    public class NavireWows
     {
-        public string Title { get; set; }
+        public string Nom { get; set; }
     }
 }

@@ -2,22 +2,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SeaOfSteel.Pages.WikiPage"
              Title="Wiki des Navires">
-
     <VerticalStackLayout Padding="10">
-        <Picker x:Name="PaysPicker" 
-                Title="Choisir un pays" 
-                SelectedIndexChanged="OnPaysChanged" />
-
-        <CollectionView x:Name="NaviresListView">
-            <CollectionView.ItemTemplate>
+        <Label Text="Selectionnez une nation :" FontSize="20" />
+        <Picker x:Name="PaysPicker" SelectedIndexChanged="OnPaysChanged" />
+        <ListView x:Name="NaviresListView">
+            <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Frame BorderColor="Gray" Padding="10" Margin="5">
-                        <Label Text="{Binding Title}" 
-                               FontAttributes="Bold" 
-                               FontSize="16" />
-                    </Frame>
+                    <TextCell Text="{Binding Nom}" />
                 </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+            </ListView.ItemTemplate>
+        </ListView>
     </VerticalStackLayout>
 </ContentPage>
