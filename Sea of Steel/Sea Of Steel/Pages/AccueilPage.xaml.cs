@@ -41,6 +41,15 @@ namespace SeaOfSteel.Pages
                 Accelerometer.ReadingChanged -= Accelerometer_ReadingChanged;
                 Accelerometer.Stop();
             }
+            if (_player != null)
+            {
+                if (_player.IsPlaying)
+                {
+                    _player.Stop();
+                }
+                _player.Dispose();
+                _player = null;
+            }
         }
 
         private void Accelerometer_ReadingChanged(object? sender, AccelerometerChangedEventArgs e)
