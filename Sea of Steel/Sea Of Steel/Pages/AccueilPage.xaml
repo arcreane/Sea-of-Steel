@@ -28,8 +28,13 @@
         <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
 
             <!-- Contenu principal (invisible au départ) -->
-            <ScrollView x:Name="MainContent" IsVisible="False" Opacity="0">
-                <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center" HorizontalOptions="Center">
+            <ScrollView x:Name="MainContent" IsVisible="False"
+                        Opacity="0"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        AbsoluteLayout.LayoutBounds="0.5,0.5,AutoSize,AutoSize"
+                        AbsoluteLayout.LayoutFlags="PositionProportional">      
+                <StackLayout Padding="30" Spacing="25" VerticalOptions="Center" HorizontalOptions="Center">
 
                     <Image Source="anchor_logo.png"
                            WidthRequest="120"
@@ -73,7 +78,7 @@
                             TextColor="White"
                             Clicked="OnQuitClicked" />
 
-                </VerticalStackLayout>
+                </StackLayout>
             </ScrollView>
 
             <!-- Couche d’intro -->
