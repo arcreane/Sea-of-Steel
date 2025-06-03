@@ -14,7 +14,7 @@
                HorizontalOptions="Center" />
 
         <!-- Les deux grilles côte à côte -->
-        <HorizontalStackLayout x:Name="GrillesLayout"
+        <StackLayout x:Name="GrillesLayout"
                                HorizontalOptions="Center"
                                Spacing="20">
 
@@ -35,7 +35,7 @@
                       IsVisible="False" />
             </VerticalStackLayout>
 
-        </HorizontalStackLayout>
+        </StackLayout>
 
     </VerticalStackLayout>
 </ContentPage>

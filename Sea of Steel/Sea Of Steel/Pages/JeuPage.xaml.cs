@@ -318,6 +318,7 @@ public partial class JeuPage : ContentPage
         };
     }
 
+
     private void DémarrerTourParTour()
     {
         _estMonTour = true;
