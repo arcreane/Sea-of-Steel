@@ -4,18 +4,29 @@ namespace SeaOfSteel.Pages;
 
 public class ResultatsPage : ContentPage
 {
-    public ResultatsPage(string message)
+    public ResultatsPage(string message, int nombreTirs)
     {
         Title = "Résultats";
 
-        var label = new Label
+        // Label principal pour victoire/défaite
+        var resultatLabel = new Label
         {
             Text = message,
             FontSize = 24,
             HorizontalOptions = LayoutOptions.Center,
-            VerticalOptions = LayoutOptions.CenterAndExpand
+            VerticalOptions = LayoutOptions.Center
         };
 
+        // Label pour le nombre de tirs
+        var tirsLabel = new Label
+        {
+            Text = $"Nombre de tirs : {nombreTirs}",
+            FontSize = 18,
+            HorizontalOptions = LayoutOptions.Center,
+            Margin = new Thickness(0, 10, 0, 20)
+        };
+
+        // Bouton Rejouer
         var rejouerButton = new Button
         {
             Text = "Rejouer",
@@ -27,6 +38,7 @@ public class ResultatsPage : ContentPage
             await Navigation.PushAsync(new LobbyPage());
         };
 
+        // Bouton Accueil
         var accueilButton = new Button
         {
             Text = "Accueil",
@@ -41,9 +53,11 @@ public class ResultatsPage : ContentPage
         Content = new VerticalStackLayout
         {
             Padding = 20,
+            Spacing = 15,
             Children =
             {
-                label,
+                resultatLabel,
+                tirsLabel,
                 rejouerButton,
                 accueilButton
             }

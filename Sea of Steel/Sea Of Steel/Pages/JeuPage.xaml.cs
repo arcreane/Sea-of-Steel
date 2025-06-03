@@ -226,7 +226,7 @@ public partial class JeuPage : ContentPage
             Dispatcher.Dispatch(async () =>
             {
                 await DisplayAlert("Victoire", "Tous les bateaux ennemis ont été coulés !", "OK");
-                await Navigation.PushAsync(new ResultatsPage("Victoire !"));
+                await Navigation.PushAsync(new ResultatsPage("Victoire !", _casesJoueurTirees.Count));
             });
             return;
         }
@@ -276,7 +276,7 @@ public partial class JeuPage : ContentPage
             Dispatcher.Dispatch(async () =>
             {
                 await DisplayAlert("Défaite", "Tous vos bateaux ont été coulés !", "OK");
-                await Navigation.PushAsync(new ResultatsPage("Défaite..."));
+                await Navigation.PushAsync(new ResultatsPage("Défaite...", _casesJoueurTirees.Count));
             });
             return;
         }
