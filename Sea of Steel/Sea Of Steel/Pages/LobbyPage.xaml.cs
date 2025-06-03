@@ -23,7 +23,7 @@ namespace SeaOfSteel.Pages
 
         private async void OnRetourClicked(object sender, EventArgs e)
         {
-            await Navigation.PopAsync();
+            await Navigation.PopToRootAsync();
         }
     }
 }
