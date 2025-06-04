@@ -73,10 +73,26 @@ namespace SeaOfSteel.Pages
                 BackgroundImageView.Source = "sousmarin.png";
                 await LogoImage.RotateTo(180, 500, Easing.CubicInOut);
 
-                Bubble1.TranslationY = 0;
+                // Préparation des éléments
+                Bubble1.TranslationY = 500;
                 Bubble1.IsVisible = true;
-                await Bubble1.TranslateTo(0, -600, 3000, Easing.CubicOut);
+
+                WaveImage.TranslationY = 600;
+                WaveImage.IsVisible = true;
+                WaveImage.Opacity = 0.7;
+
+                // Lancement simultané
+                await Task.WhenAll(
+                    WaveImage.TranslateTo(0, -600, 3000, Easing.CubicOut),
+                    Bubble1.TranslateTo(0, -600, 6000, Easing.SinOut)
+                );
+
+                // Nettoyage après animation
                 Bubble1.IsVisible = false;
+
+                await WaveImage.FadeTo(0, 1500, Easing.CubicIn);
+                WaveImage.IsVisible = false;
+                WaveImage.TranslationY = 600;
             }
             catch (Exception ex)
             {

@@ -16,13 +16,23 @@
 
         <!-- Animation de bulle -->
         <Image x:Name="Bubble1"
-               Source="bubble.png"
+               Source="morebubble.png"
                IsVisible="False"
                Opacity="0.8"
-               WidthRequest="50"
-               HeightRequest="50"
-               AbsoluteLayout.LayoutBounds="0.2,1,50,50"
+               WidthRequest="600"
+               HeightRequest="600"
+               AbsoluteLayout.LayoutBounds="0.2,1,600,600"
                AbsoluteLayout.LayoutFlags="PositionProportional" />
+
+        <!-- Animation de vague -->
+        <Image x:Name="WaveImage"
+                   Source="wave.png"
+                   Aspect="Fill"
+                   IsVisible="False"
+                   WidthRequest="600"
+                    HeightRequest="600"
+                    AbsoluteLayout.LayoutBounds="0.2,1,600,600"
+                    AbsoluteLayout.LayoutFlags="PositionProportional" />
 
         <!-- Structure principale de la page -->
         <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
