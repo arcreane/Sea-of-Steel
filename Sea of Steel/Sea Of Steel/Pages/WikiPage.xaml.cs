@@ -19,7 +19,7 @@ public partial class WikiPage : ContentPage
         {"Royaume-Uni", "uk"}
     };
 
-    private const string ApplicationId = "DEMO"; // <-- À remplacer par ta vraie clé API
+    private const string ApplicationId = "DEMO"; // <-- À remplacer par la vraie clé API
     private const string BaseUrl = "https://api.worldofwarships.eu/wows/encyclopedia/ships/";
 
     public WikiPage()

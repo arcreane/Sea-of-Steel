@@ -66,7 +66,7 @@ public partial class JeuPage : ContentPage
     // -------------------------------------------------
     //  Construction de grille générique
     // -------------------------------------------------
-    private void CreateGrid(Button[,] grille, Grid grilleUI)
+    /*private void CreateGrid(Button[,] grille, Grid grilleUI)
     {
         grilleUI.RowDefinitions.Clear();
         grilleUI.ColumnDefinitions.Clear();
@@ -96,7 +96,65 @@ public partial class JeuPage : ContentPage
                 grilleUI.Add(button, col, row);
             }
         }
+    }*/
+    private void CreateGrid(Button[,] grille, Grid grilleUI)
+    {
+        grilleUI.RowDefinitions.Clear();
+        grilleUI.ColumnDefinitions.Clear();
+
+        // Ajoute une ligne et une colonne supplémentaire pour les étiquettes
+        grilleUI.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // pour les lettres
+        for (int i = 0; i < GridSize; i++)
+            grilleUI.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+        grilleUI.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // pour les chiffres
+        for (int i = 0; i < GridSize; i++)
+            grilleUI.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        // Ajouter lettres en haut (A-J)
+        for (int col = 0; col < GridSize; col++)
+        {
+            var label = new Label
+            {
+                Text = ((char)('A' + col)).ToString(),
+                FontSize = 14,
+                HorizontalTextAlignment = TextAlignment.Center,
+                VerticalTextAlignment = TextAlignment.Center
+            };
+            grilleUI.Add(label, col + 1, 0);
+        }
+
+        // Ajouter chiffres à gauche (1-10) + boutons
+        for (int row = 0; row < GridSize; row++)
+        {
+            var label = new Label
+            {
+                Text = (row + 1).ToString(),
+                FontSize = 14,
+                HorizontalTextAlignment = TextAlignment.Center,
+                VerticalTextAlignment = TextAlignment.Center
+            };
+            grilleUI.Add(label, 0, row + 1);
+
+            for (int col = 0; col < GridSize; col++)
+            {
+                var button = new Button
+                {
+                    BackgroundColor = Colors.LightBlue,
+                    WidthRequest = 30,
+                    HeightRequest = 30,
+                    Margin = 1,
+                    CornerRadius = 5,
+                    BindingContext = new Position(row, col)
+                };
+                button.Clicked += OnGridButtonClicked;
+
+                grille[row, col] = button;
+                grilleUI.Add(button, col + 1, row + 1); // Décalage pour tenir compte des labels
+            }
+        }
     }
+
 
     // -------------------------------------------------
     //  Gestion des clics (placement / tir)
