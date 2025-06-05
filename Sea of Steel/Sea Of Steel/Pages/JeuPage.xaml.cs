@@ -66,50 +66,19 @@ public partial class JeuPage : ContentPage
     // -------------------------------------------------
     //  Construction de grille générique
     // -------------------------------------------------
-    /*private void CreateGrid(Button[,] grille, Grid grilleUI)
-    {
-        grilleUI.RowDefinitions.Clear();
-        grilleUI.ColumnDefinitions.Clear();
-
-        for (int i = 0; i < GridSize; i++)
-        {
-            grilleUI.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            grilleUI.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        }
-
-        for (int row = 0; row < GridSize; row++)
-        {
-            for (int col = 0; col < GridSize; col++)
-            {
-                var button = new Button
-                {
-                    BackgroundColor = Colors.LightBlue,
-                    WidthRequest = 30,
-                    HeightRequest = 30,
-                    Margin = 1,
-                    CornerRadius = 5,
-                    BindingContext = new Position(row, col)
-                };
-                button.Clicked += OnGridButtonClicked;
-
-                grille[row, col] = button;
-                grilleUI.Add(button, col, row);
-            }
-        }
-    }*/
     private void CreateGrid(Button[,] grille, Grid grilleUI)
     {
         grilleUI.RowDefinitions.Clear();
         grilleUI.ColumnDefinitions.Clear();
 
         // Ajoute une ligne et une colonne supplémentaire pour les étiquettes
-        grilleUI.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // pour les lettres
+        grilleUI.RowDefinitions.Add(new RowDefinition { Height = GridLength.Star }); // pour les lettres
         for (int i = 0; i < GridSize; i++)
-            grilleUI.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            grilleUI.RowDefinitions.Add(new RowDefinition { Height = GridLength.Star });
 
-        grilleUI.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // pour les chiffres
+        grilleUI.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star }); // pour les chiffres
         for (int i = 0; i < GridSize; i++)
-            grilleUI.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grilleUI.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
 
         // Ajouter lettres en haut (A-J)
         for (int col = 0; col < GridSize; col++)
@@ -141,8 +110,8 @@ public partial class JeuPage : ContentPage
                 var button = new Button
                 {
                     BackgroundColor = Colors.LightBlue,
-                    WidthRequest = 30,
-                    HeightRequest = 30,
+                    WidthRequest = 28,
+                    HeightRequest = 28,
                     Margin = 1,
                     CornerRadius = 5,
                     BindingContext = new Position(row, col)
@@ -197,6 +166,16 @@ public partial class JeuPage : ContentPage
                     _phasePlacement = false;
                     TirGrid.IsVisible = true;          // Affiche la grille de tir
                     PlacementGrid.IsEnabled = false;     // Empêche de « tirer » sur soi
+                                                         // ➕ Griser les cases SANS bateau
+                    for (int row = 0; row < GridSize; row++)
+                    {
+                        for (int col = 0; col < GridSize; col++)
+                        {
+                            bool estBateau = _bateauxJoueur.Any(b => b.Positions.Contains((row, col)));
+                            if (!estBateau)
+                                _grillePlacement[row, col].BackgroundColor = Colors.LightGray;
+                        }
+                    }
                     DémarrerTourParTour();
                 }
             }
