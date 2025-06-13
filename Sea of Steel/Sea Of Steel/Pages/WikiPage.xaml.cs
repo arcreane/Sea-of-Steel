@@ -10,17 +10,14 @@ namespace SeaOfSteel.Pages;
 public partial class WikiPage : ContentPage
 {
     private readonly Dictionary<string, string> nations = new()
-    {
-        {"États-Unis", "usa"},
-        {"Japon", "japan"},
-        {"Allemagne", "germany"},
-        {"URSS", "ussr"},
-        {"France", "france"},
-        {"Royaume-Uni", "uk"}
-    };
-
-    private const string ApplicationId = "DEMO"; // <-- À remplacer par la vraie clé API
-    private const string BaseUrl = "https://api.worldofwarships.eu/wows/encyclopedia/ships/";
+{
+    { "États-Unis", "United_States" },
+    { "Royaume-Uni", "United_Kingdom" },
+    { "France", "France" },
+    { "Japon", "Japan" },
+    { "Allemagne", "Germany" },
+    { "URSS", "Soviet_Union" }
+};
 
     public WikiPage()
     {
@@ -28,50 +25,94 @@ public partial class WikiPage : ContentPage
         PaysPicker.ItemsSource = nations.Keys.ToList();
     }
 
-    private async void OnPaysChanged(object sender, EventArgs e)
+    public class NavireWiki
     {
-        if (PaysPicker.SelectedIndex == -1) return;
-
-        string selectedKey = PaysPicker.SelectedItem.ToString();
-        if (nations.TryGetValue(selectedKey, out string nationCode))
-        {
-            await ChargerNaviresDepuisWargaming(nationCode);
-        }
+        public string Titre { get; set; }
+        public string ImageUrl { get; set; }
+        public string DescriptionCourte { get; set; }
+        public string PageId { get; set; }
+        public string Annee { get; set; }
     }
-
-    private async Task ChargerNaviresDepuisWargaming(string nationCode)
+    private async Task ChargerNaviresDepuisWikipedia(string pays)
     {
         try
         {
             using var client = new HttpClient();
-            string url = $"{BaseUrl}?application_id={ApplicationId}&nation={nationCode}";
+            string url = $"https://{(pays == "Japon" ? "ja" : "en")}.wikipedia.org/w/api.php" +
+                         "?action=query&format=json&origin=*&prop=pageimages|extracts" +
+                         "&exintro=true&explaintext=true&generator=categorymembers" +
+                         $"&gcmtitle=Category:Naval_ships_of_{pays.Replace(" ", "_")}" +
+                         "&gcmlimit=20&piprop=thumbnail&pithumbsize=200";
 
             var response = await client.GetStringAsync(url);
             using var doc = JsonDocument.Parse(response);
 
-            var navires = new List<NavireWows>();
-            foreach (var item in doc.RootElement.GetProperty("data").EnumerateObject())
+            var pages = doc.RootElement.GetProperty("query").GetProperty("pages");
+            var navires = new List<NavireWiki>();
+
+            foreach (var page in pages.EnumerateObject())
             {
-                var ship = item.Value;
-                if (ship.TryGetProperty("name", out var nameProp))
+                var props = page.Value;
+                string titre = props.GetProperty("title").GetString() ?? "Sans nom";
+                string pageId = props.GetProperty("pageid").ToString();
+                string extrait = props.TryGetProperty("extract", out var ext) ? ext.GetString() ?? "" : "";
+                string thumb = props.TryGetProperty("thumbnail", out var tn) && tn.TryGetProperty("source", out var src) ? src.GetString() ?? "" : "";
+
+                string annee = System.Text.RegularExpressions.Regex.Match(extrait, @"\b(18|19|20)\d{2}\b").Value;
+
+                navires.Add(new NavireWiki
                 {
-                    navires.Add(new NavireWows
-                    {
-                        Nom = nameProp.GetString()
-                    });
-                }
+                    Titre = titre,
+                    PageId = pageId,
+                    DescriptionCourte = extrait.Length > 100 ? extrait.Substring(0, 100) + "..." : extrait,
+                    ImageUrl = thumb,
+                    Annee = annee
+                });
             }
 
             NaviresListView.ItemsSource = navires;
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Erreur", $"Erreur lors du chargement : {ex.Message}", "OK");
+            await DisplayAlert("Erreur", $"Erreur Wikipedia : {ex.Message}", "OK");
+        }
+    }
+    private async void OnPaysChanged(object sender, EventArgs e)
+    {
+        if (PaysPicker.SelectedIndex == -1) return;
+
+        string selectedKey = PaysPicker.SelectedItem.ToString();
+        if (nations.TryGetValue(selectedKey, out string countryCode))
+        {
+            await ChargerNaviresDepuisWikipedia(countryCode);
         }
     }
 
-    public class NavireWows
+    private async void NaviresListView_ItemTapped(object sender, ItemTappedEventArgs e)
     {
-        public string Nom { get; set; }
+        if (e.Item is NavireWiki navire)
+        {
+            await Navigation.PushAsync(new NavireDetailPage(navire));
+        }
     }
+    public class NavireDetailPage : ContentPage
+    {
+        public NavireDetailPage(NavireWiki navire)
+        {
+            Title = navire.Titre;
+
+            var image = new Image { Source = navire.ImageUrl, HeightRequest = 200 };
+            var label = new Label { Text = navire.DescriptionCourte, FontSize = 16, Margin = new Thickness(10) };
+            var annee = new Label { Text = $"Année : {navire.Annee}", FontSize = 14, Margin = new Thickness(10, 0) };
+
+            Content = new ScrollView
+            {
+                Content = new VerticalStackLayout
+                {
+                    Children = { image, annee, label }
+                }
+            };
+        }
+    }
+
 }
