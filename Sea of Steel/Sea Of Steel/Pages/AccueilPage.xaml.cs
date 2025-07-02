@@ -134,7 +134,7 @@ namespace SeaOfSteel.Pages
         }
         private async void OnWikiClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("WikiPage");
+            await Navigation.PushAsync(new NavigationPage(new WikiPage()));
         }
 
         private void OnQuitClicked(object sender, EventArgs e)

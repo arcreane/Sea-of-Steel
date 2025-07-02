@@ -1,4 +1,4 @@
-using System.Net.Http;
+ï»¿using System.Net.Http;
 using System.Text.Json;
 using Microsoft.Maui.Controls;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ public partial class WikiPage : ContentPage
 {
     private readonly Dictionary<string, string> nations = new()
 {
-    { "États-Unis", "United_States" },
+    { "Ã‰tats-Unis", "United_States" },
     { "Royaume-Uni", "United_Kingdom" },
     { "France", "France" },
     { "Japon", "Japan" },
@@ -103,7 +103,7 @@ public partial class WikiPage : ContentPage
 
             var image = new Image { Source = navire.ImageUrl, HeightRequest = 200 };
             var label = new Label { Text = navire.DescriptionCourte, FontSize = 16, Margin = new Thickness(10) };
-            var annee = new Label { Text = $"Année : {navire.Annee}", FontSize = 14, Margin = new Thickness(10, 0) };
+            var annee = new Label { Text = $"AnnÃ©e : {navire.Annee}", FontSize = 14, Margin = new Thickness(10, 0) };
 
             Content = new ScrollView
             {
