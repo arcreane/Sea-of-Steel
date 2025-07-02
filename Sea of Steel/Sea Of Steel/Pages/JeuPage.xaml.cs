@@ -1,17 +1,28 @@
-﻿using SeaOfSteel.Models;
-using Microsoft.Maui.Controls;
+﻿using Microsoft.Maui.Controls;
 using Microsoft.Maui.Devices;
-using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Dispatching;
+using Microsoft.Maui.Graphics;
+using Plugin.BLE;
+using Plugin.BLE.Abstractions.Contracts;
+using Plugin.BLE.Abstractions.EventArgs;
+using SeaOfSteel.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace SeaOfSteel.Pages;
 
 public partial class JeuPage : ContentPage
 {
     private const int GridSize = 10;
+    
+    // ——— UUIDs Bluetooth ———
+    private static readonly Guid SERVICE_UUID = Guid.Parse("0000180D-0000-1000-8000-00805F9B34FB");
+    private static readonly Guid CHARACTERISTIC_UUID = Guid.Parse("00002A37-0000-1000-8000-00805F9B34FB");
+
+    private IDevice _remoteDevice;
+    private ICharacteristic _bluetoothCharacteristic;
 
     // ——— UI ———
     private readonly Button[,] _grillePlacement = new Button[GridSize, GridSize];
@@ -43,7 +54,7 @@ public partial class JeuPage : ContentPage
     private enum Direction { None, Horizontal, Vertical }
     private Direction _currentDirection = Direction.None;
 
-    public JeuPage(bool isHost, bool modeSolo = false)
+    public JeuPage(bool isHost, bool modeSolo = false, ICharacteristic bluetoothCharacteristic = null)
     {
         InitializeComponent();
         _isHost = isHost;
@@ -55,6 +66,8 @@ public partial class JeuPage : ContentPage
 
         if (_modeSolo)
             GénérerBateauxAdverses();
+        if (!_modeSolo)
+            _ = InitBluetoothCommunicationAsync();
 
         // Premier message de placement
         _ = DisplayAlert("Placement",
@@ -231,49 +244,81 @@ public partial class JeuPage : ContentPage
     private bool IsAdjacent(int row, int col) =>
         _positionsTemp.Any(p => Math.Abs(p.Row - row) + Math.Abs(p.Col - col) == 1);
 
-    private void TirerSurCase(Button caseCible, Position position)
+    private async void TirerSurCase(Button caseCible, Position position)
     {
         if (!_estMonTour || _casesJoueurTirees.Contains((position.Row, position.Col)))
             return;
 
         _casesJoueurTirees.Add((position.Row, position.Col));
-        bool touche = false;
 
-        foreach (var bateau in _bateauxAdverses)
+        if (_modeSolo)
         {
-            if (!bateau.Positions.Remove((position.Row, position.Col))) continue;
+            // ---- LOGIQUE SOLO ----
+            bool touche = false;
 
-            caseCible.BackgroundColor = Colors.Red;
-            touche = true;
-            VibrerImpact();
-
-            if (bateau.EstCoule)
+            foreach (var bateau in _bateauxAdverses)
             {
-                VibrerExplosion();
-                DisplayAlert("Bateau coulé", $"Vous avez coulé le {bateau.Nom} !", "OK");
+                if (!bateau.Positions.Remove((position.Row, position.Col))) continue;
+
+                caseCible.BackgroundColor = Colors.Red;
+                touche = true;
+                VibrerImpact();
+
+                if (bateau.EstCoule)
+                {
+                    VibrerExplosion();
+                    await DisplayAlert("Bateau coulé", $"Vous avez coulé le {bateau.Nom} !", "OK");
+                }
+                break;
             }
-            break;
-        }
 
-        if (!touche)
-            caseCible.BackgroundColor = Colors.LightGray;
+            if (!touche)
+                caseCible.BackgroundColor = Colors.LightGray;
 
-        if (_bateauxAdverses.All(b => b.EstCoule))
-        {
-            Dispatcher.Dispatch(async () =>
+            if (_bateauxAdverses.All(b => b.EstCoule))
             {
-                await DisplayAlert("Victoire", "Tous les bateaux ennemis ont été coulés !", "OK");
-                await Navigation.PushAsync(new ResultatsPage("Victoire !", _casesJoueurTirees.Count));
-            });
+                Dispatcher.Dispatch(async () =>
+                {
+                    await DisplayAlert("Victoire", "Tous les bateaux ennemis ont été coulés !", "OK");
+                    await Navigation.PushAsync(new ResultatsPage("Victoire !", _casesJoueurTirees.Count));
+                });
+                return;
+            }
+
+            _estMonTour = false;
+            TourLabel.Text = "Tour de l'adversaire";
+            Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(1), SimulerTourAdverse);
             return;
         }
 
-        _estMonTour = false;
-        TourLabel.Text = "Tour de l'adversaire";
+        // ---- LOGIQUE MULTIJOUEUR ----
+        if (_bluetoothCharacteristic == null)
+        {
+            await DisplayAlert("Erreur", "Bluetooth non prêt", "OK");
+            return;
+        }
 
-        if (_modeSolo)
-            Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(1), SimulerTourAdverse);
+        try
+        {
+            var message = new Dictionary<string, object>
+            {
+                ["type"] = "tir",
+                ["x"] = position.Row,
+                ["y"] = position.Col
+            };
+            var json = JsonSerializer.Serialize(message);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+            await _bluetoothCharacteristic.WriteAsync(bytes);
+
+            TourLabel.Text = "Tour de l'adversaire";
+            _estMonTour = false;
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Erreur", $"Envoi échoué : {ex.Message}", "OK");
+        }
     }
+
 
     private void SimulerTourAdverse()
     {
@@ -416,4 +461,57 @@ public partial class JeuPage : ContentPage
             }
         }
     }
+    private async Task InitBluetoothCommunicationAsync()
+    {
+        try
+        {
+            var adapter = CrossBluetoothLE.Current.Adapter;
+            //var devices = await adapter.GetSystemConnectedOrPairedDevicesAsync();
+            //_remoteDevice = devices.FirstOrDefault(d => d.Name.StartsWith("SeaOfSteel-"));
+
+            if (_remoteDevice == null)
+            {
+                await DisplayAlert("Erreur", "Appareil distant non trouvé", "OK");
+                return;
+            }
+
+            await adapter.ConnectToDeviceAsync(_remoteDevice);
+
+            var service = (await _remoteDevice.GetServicesAsync()).FirstOrDefault(s => s.Id == SERVICE_UUID);
+            if (service == null) return;
+
+            _bluetoothCharacteristic = await service.GetCharacteristicAsync(CHARACTERISTIC_UUID);
+            await _bluetoothCharacteristic.StartUpdatesAsync();
+            _bluetoothCharacteristic.ValueUpdated += OnMessageReceived;
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Erreur Bluetooth", ex.Message, "OK");
+        }
+    }
+    private void OnMessageReceived(object sender, CharacteristicUpdatedEventArgs e)
+    {
+        var msg = System.Text.Encoding.UTF8.GetString(e.Characteristic.Value);
+        var data = JsonSerializer.Deserialize<Dictionary<string, object>>(msg);
+
+        if (data?["type"]?.ToString() == "resultat")
+        {
+            bool touche = Convert.ToBoolean(data["touche"]);
+
+            Dispatcher.Dispatch(() =>
+            {
+                var last = _casesJoueurTirees.Last();
+                var bouton = _grilleTir[last.Row, last.Col];
+                bouton.BackgroundColor = touche ? Colors.Red : Colors.LightGray;
+
+                if (touche)
+                    VibrerImpact();
+
+                TourLabel.Text = "À vous de jouer";
+                _estMonTour = true;
+            });
+        }
+    }
+
+
 }
